@@ -1,0 +1,7 @@
+name: Infected
+version: 1.0
+main: com.gmail.grzegorz2047.infected.Infected
+depend: [Database]
+commands:
+    infected:
+        description: Infected commands

@@ -1,0 +1,28 @@
+mysql:
+        player:
+            host: sv2.craftgames.pl
+            user:
+            password:
+            db:
+            port: 3306
+        message:
+            host: sv2.craftgames.pl
+            user:
+            password:
+            db:
+            port: 3306
+            minigame: 'Infected'
+        money:
+            host: sv2.craftgames.pl
+            user:
+            password:
+            db:
+            port: 3306
+            table: 'InfectedMoney'
+        stats:
+            host: sv2.craftgames.pl
+            user:
+            password:
+            db:
+            port: 3306
+            table: 'InfectedStats'
