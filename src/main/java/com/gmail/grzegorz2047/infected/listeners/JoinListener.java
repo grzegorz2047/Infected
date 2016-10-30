@@ -1,5 +1,8 @@
 package com.gmail.grzegorz2047.infected.listeners;
 
+import com.gmail.grzegorz2047.infected.GameUser;
+import com.gmail.grzegorz2047.infected.Infected;
+import com.gmail.grzegorz2047.infected.counter.Counter;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -14,15 +17,31 @@ import pl.grzegorz2047.serversmanagement.ArenaStatus;
  */
 public class JoinListener implements Listener {
 
+    private final Infected plugin;
+
+    public JoinListener(Infected plugin) {
+        this.plugin = plugin;
+    }
+
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
         e.setJoinMessage("");
         Player p = e.getPlayer();
         preparePlayer(p);
         ArenaStatus.setPlayers(Bukkit.getOnlinePlayers().size());
-    }
 
-    private void preparePlayer(Player p){
+        if (plugin.getArena().isWaiting()) {
+            plugin.getArena().addPlayer(p, GameUser.PlayerStatus.ALIVE);
+            if (plugin.getArena().isEnoughToStart()) {
+                plugin.getArena().preStartArena();
+
+            }
+        }
+        if (plugin.getArena().isWaiting()) {
+            plugin.getArena().addPlayer(p, GameUser.PlayerStatus.SPECTATOR);
+        }
+    }
+    private void preparePlayer(Player p) {
         p.getInventory().clear();
         p.getInventory().setArmorContents(new ItemStack[4]);
         p.setGameMode(GameMode.SURVIVAL);

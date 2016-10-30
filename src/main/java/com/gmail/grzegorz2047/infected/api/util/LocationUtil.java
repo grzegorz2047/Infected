@@ -1,8 +1,8 @@
 package com.gmail.grzegorz2047.infected.api.util;
 
+import com.gmail.grzegorz2047.infected.api.exception.IncorrectDataStringException;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import pl.grzegorz2047.api.exception.IncorrectDataStringException;
 
 /**
  * Created by Grzegorz2047. 23.09.2015.

@@ -6,8 +6,7 @@ import org.bukkit.Bukkit;
 /**
  * Created by grzegorz2047 on 16.05.2016.
  */
-public class Counter implements Runnable{
-    private final Infected plugin;
+public class Counter implements Runnable {
 
     public int getTime() {
         return time;
@@ -16,8 +15,8 @@ public class Counter implements Runnable{
     private int time;
     private boolean running = false;
 
-    public Counter(Infected plugin) {
-        this.plugin = plugin;
+    public Counter() {
+
     }
 
     private CounterStatus status = CounterStatus.STOPPED;
@@ -33,6 +32,10 @@ public class Counter implements Runnable{
         PAUSED
     }
 
+    public void setPaused(boolean paused) {
+        this.running = paused;
+    }
+
     public CounterStatus getStatus() {
         return status;
     }
@@ -46,16 +49,20 @@ public class Counter implements Runnable{
         this.running = false;
     }
 
-    public void start(CounterStatus status) {
+    public void start(int seconds) {
+        if (running) {
+            System.out.println("ERROR?! Counter juz odlicza! Resetuje!");
+        }
+        this.time = seconds;
         this.running = true;
-        this.setStatus(status);
+        this.setStatus(CounterStatus.RUNNING);
     }
 
     public boolean isRunning() {
         return running;
     }
 
-    public void count() {
+    private void count() {
         if (this.running) {
             if (time > 0) {
                 time--;

@@ -42,6 +42,13 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>LibDisguise</groupId>
+            <artifactId>pl.grzegorz2047</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/LibsDisguises.jar</systemPath>
+        </dependency>
+        <dependency>
             <groupId>Database</groupId>
             <artifactId>pl.grzegorz2047</artifactId>
             <version>1.0</version>

@@ -23,7 +23,7 @@ public class DatabaseController {
 
     public DatabaseController(Plugin plugin) {
         configFile = new YmlFileHandler(plugin, plugin.getDataFolder().getPath(), "config.yml");
-
+        configFile.load();
         playerdb = new DatabaseAPI(
                 configFile.getConfig().getString("mysql.player.host"),
                 configFile.getConfig().getInt("mysql.player.port"),
@@ -57,6 +57,7 @@ public class DatabaseController {
                 configFile.getConfig().getString("mysql.message.password"),
                 configFile.getConfig().getString("mysql.message.minigame")
         );
+
     }
 
     public HashMap<String, String> getSettings() {

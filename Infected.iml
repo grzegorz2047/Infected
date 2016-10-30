@@ -21,6 +21,15 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.yaml:snakeyaml:1.15" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: net.md-5:bungeecord-chat:1.8-SNAPSHOT" level="project" />
     <orderEntry type="module-library">
+      <library name="Maven: LibDisguise:pl.grzegorz2047:1.0">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/libs/LibsDisguises.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
       <library name="Maven: Database:pl.grzegorz2047:1.0">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/libs/Database-1.0-SNAPSHOT.jar!/" />

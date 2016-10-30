@@ -1,10 +1,7 @@
 package com.gmail.grzegorz2047.infected;
 
 import com.gmail.grzegorz2047.infected.counter.Counter;
-import com.gmail.grzegorz2047.infected.listeners.DeathListener;
-import com.gmail.grzegorz2047.infected.listeners.EntityDamageByEntityListener;
-import com.gmail.grzegorz2047.infected.listeners.JoinListener;
-import com.gmail.grzegorz2047.infected.listeners.LoginListener;
+import com.gmail.grzegorz2047.infected.listeners.*;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -15,12 +12,15 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Infected extends JavaPlugin {
 
     private Counter counter;
+    private Arena arena;
 
     @Override
     public void onEnable() {
-        counter = new Counter(this);
+        counter = new Counter();
         Bukkit.getScheduler().runTaskTimer(this, counter, 0, 20l);
         registerListeners();
+        arena = new Arena(this);
+        arena.init();
         System.out.println(this.getName() + " zostal wylaczony!");
     }
 
@@ -31,12 +31,19 @@ public class Infected extends JavaPlugin {
 
 
     private void registerListeners() {
-        Bukkit.getPluginManager().registerEvents(new JoinListener(), this);
+        Bukkit.getPluginManager().registerEvents(new JoinListener(this), this);
         Bukkit.getPluginManager().registerEvents(new LoginListener(), this);
-        Bukkit.getPluginManager().registerEvents(new EntityDamageByEntityListener(), this);
+        Bukkit.getPluginManager().registerEvents(new EntityDamageByEntityListener(arena), this);
         Bukkit.getPluginManager().registerEvents(new DeathListener(), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerChatListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerQuitListener(this), this);
     }
-    public Counter getCounter(){
+
+    public Counter getCounter() {
         return this.counter;
+    }
+
+    public Arena getArena() {
+        return arena;
     }
 }

@@ -13,8 +13,7 @@ public class GameUser extends SQLUser {
 
     private int money;
     private StatsUser statsUser;
-
-    private enum PlayerStatus {ALIVE, ZOMBIE, SPECTATOR}
+    public enum PlayerStatus {ALIVE, ZOMBIE, SPECTATOR}
 
     private PlayerStatus playerStatus;
     // private List<Transaction> transactions;
@@ -63,6 +62,15 @@ public class GameUser extends SQLUser {
     }
     public void changePlayerStatus(PlayerStatus playerStatus) {
         this.playerStatus = playerStatus;
+    }
+    public boolean isZombie() {
+        return playerStatus.equals(PlayerStatus.ZOMBIE);
+    }
+    public boolean isAlive() {
+        return playerStatus.equals(PlayerStatus.ALIVE);
+    }
+    public boolean isSpectator() {
+        return playerStatus.equals(PlayerStatus.SPECTATOR);
     }
 /*
     public List<Transaction> getTransactions() {
