@@ -69,6 +69,7 @@ public class Counter implements Runnable {
                 Bukkit.getPluginManager().callEvent(new CountingEvent(this.getStatus(), this));
             } else {
                 Bukkit.getPluginManager().callEvent(new CounterEndEvent(this.getStatus(), this));
+                cancel();
             }
         }
     }

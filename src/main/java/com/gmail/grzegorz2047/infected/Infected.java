@@ -21,6 +21,7 @@ public class Infected extends JavaPlugin {
         registerListeners();
         arena = new Arena(this);
         arena.init();
+        CommandController commands = new CommandController(this);
         System.out.println(this.getName() + " zostal wylaczony!");
     }
 
@@ -32,11 +33,15 @@ public class Infected extends JavaPlugin {
 
     private void registerListeners() {
         Bukkit.getPluginManager().registerEvents(new JoinListener(this), this);
-        Bukkit.getPluginManager().registerEvents(new LoginListener(), this);
-        Bukkit.getPluginManager().registerEvents(new EntityDamageByEntityListener(arena), this);
+        Bukkit.getPluginManager().registerEvents(new PlaceBreakListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new EntityDamageByEntityListener(this), this);
         Bukkit.getPluginManager().registerEvents(new DeathListener(), this);
         Bukkit.getPluginManager().registerEvents(new PlayerChatListener(this), this);
         Bukkit.getPluginManager().registerEvents(new PlayerQuitListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new CounterEndTimeListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new CountingTimeListener(this), this);
+        this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+
     }
 
     public Counter getCounter() {

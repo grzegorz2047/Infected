@@ -1,5 +1,7 @@
 package com.gmail.grzegorz2047.infected.listeners;
 
+import com.gmail.grzegorz2047.infected.Arena;
+import com.gmail.grzegorz2047.infected.GameUser;
 import com.gmail.grzegorz2047.infected.Infected;
 import com.gmail.grzegorz2047.infected.counter.CountingEvent;
 import org.bukkit.Bukkit;
@@ -26,6 +28,9 @@ public class CountingTimeListener implements Listener {
             if (time < 5 || time % 5 == 0) {
                 Bukkit.broadcastMessage(countingPlMsg);
             }
+        }
+        if(plugin.getArena().isInGame()){
+            plugin.getArena().checkIfZombieWin();
         }
     }
 

@@ -9,7 +9,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
 import pl.grzegorz2047.serversmanagement.ArenaStatus;
 
 /**
@@ -28,19 +30,36 @@ public class JoinListener implements Listener {
         e.setJoinMessage("");
         Player p = e.getPlayer();
         preparePlayer(p);
+        try {
+            p.teleport(plugin.getArena().getSpawn());
+        } catch (NullPointerException ex) {
+            System.out.print("Brak ustalonego glownego spawnu");
+        }
         ArenaStatus.setPlayers(Bukkit.getOnlinePlayers().size());
-
         if (plugin.getArena().isWaiting()) {
-            plugin.getArena().addPlayer(p, GameUser.PlayerStatus.ALIVE);
             if (plugin.getArena().isEnoughToStart()) {
                 plugin.getArena().preStartArena();
-
             }
         }
-        if (plugin.getArena().isWaiting()) {
-            plugin.getArena().addPlayer(p, GameUser.PlayerStatus.SPECTATOR);
-        }
+
     }
+
+    @EventHandler
+    public void onLogin(PlayerLoginEvent e) {
+        Player p = e.getPlayer();
+        GameUser gameUser;
+        if (plugin.getArena().isWaiting()) {
+            gameUser = plugin.getArena().addPlayer(p, GameUser.PlayerStatus.ALIVE);
+        }
+        else if (plugin.getArena().isStarting()) {
+            gameUser = plugin.getArena().addPlayer(p, GameUser.PlayerStatus.ALIVE);
+        }
+        else if (plugin.getArena().isInGame()) {
+            gameUser = plugin.getArena().addPlayer(p, GameUser.PlayerStatus.SPECTATOR);
+        }
+
+    }
+
     private void preparePlayer(Player p) {
         p.getInventory().clear();
         p.getInventory().setArmorContents(new ItemStack[4]);
@@ -48,6 +67,14 @@ public class JoinListener implements Listener {
         p.setHealth(20);
         p.setFoodLevel(20);
         p.setLevel(0);
+        for (PotionEffect effect : p.getActivePotionEffects()) {
+            p.removePotionEffect(effect.getType());
+        }
+        for(Player pl : Bukkit.getOnlinePlayers()){
+            for(Player pls : Bukkit.getOnlinePlayers()){
+                pl.showPlayer(pls);
+            }
+        }
     }
 
 }

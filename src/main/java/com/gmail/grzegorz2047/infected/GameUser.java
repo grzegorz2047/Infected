@@ -72,7 +72,8 @@ public class GameUser extends SQLUser {
     public boolean isSpectator() {
         return playerStatus.equals(PlayerStatus.SPECTATOR);
     }
-/*
+
+    /*
     public List<Transaction> getTransactions() {
         return transactions;
     }
