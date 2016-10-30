@@ -1,5 +1,6 @@
 package com.gmail.grzegorz2047.infected.listeners;
 
+import com.gmail.grzegorz2047.infected.GameUser;
 import com.gmail.grzegorz2047.infected.Infected;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -25,7 +26,15 @@ public class PlayerQuitListener implements Listener {
     public void onQuit(PlayerQuitEvent e) {
         Player p = e.getPlayer();
         e.setQuitMessage("");
-        plugin.getArena().removePlayer(p.getName());
+        GameUser gameUser = plugin.getArena().getPlayer(p.getName());
+        if (gameUser.isZombie()) {
+            if (plugin.getArena().count(GameUser.PlayerStatus.ZOMBIE) <= 0) {
+                if (plugin.getArena().count(GameUser.PlayerStatus.ALIVE) >= 2) {
+                    plugin.getArena().removePlayer(p.getName());
+                    plugin.getArena().assignFirstZombie();
+                }
+            }
+        }
         //jeżeli zombie i rozgrywka i tylko 1 zombie wyznacz nowego zombie
         //jezeli jedna osoba restart areny
         ArenaStatus.setPlayers(Bukkit.getOnlinePlayers().size());

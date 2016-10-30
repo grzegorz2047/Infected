@@ -46,8 +46,7 @@ public class EntityDamageByEntityListener implements Listener {
                 arena.makePlayerZombie(attacked, attackedUser);
                 attacked.sendMessage(infectedMsg);
             }
-        }
-        else if (e.getDamager() instanceof Egg) {
+        } else if (e.getDamager() instanceof Egg) {
             if (e.getEntity() instanceof Player) {
                 Player attacked = (Player) e.getEntity();
                 ProjectileSource attackerEntity = ((Egg) e.getDamager()).getShooter();
@@ -65,7 +64,15 @@ public class EntityDamageByEntityListener implements Listener {
 
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageEvent e) {
+        if (e.getCause().equals(EntityDamageEvent.DamageCause.VOID)) {
+            if (e.getEntity() instanceof Player) {
+                Player p = (Player) e.getEntity();
+                p.teleport(plugin.getArena().getAliveIngameSpawn());
+
+            }
+        }
         e.setCancelled(true);
+
     }
 
 }
