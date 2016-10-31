@@ -40,6 +40,7 @@ public class Infected extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new PlayerQuitListener(this), this);
         Bukkit.getPluginManager().registerEvents(new CounterEndTimeListener(this), this);
         Bukkit.getPluginManager().registerEvents(new CountingTimeListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new BlockVariousInteractionListener(this), this);
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
     }

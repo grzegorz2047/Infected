@@ -3,6 +3,7 @@ package com.gmail.grzegorz2047.infected.listeners;
 import com.gmail.grzegorz2047.infected.Arena;
 import com.gmail.grzegorz2047.infected.GameUser;
 import com.gmail.grzegorz2047.infected.Infected;
+import org.bukkit.Material;
 import org.bukkit.entity.Egg;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -10,6 +11,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
@@ -42,6 +44,7 @@ public class EntityDamageByEntityListener implements Listener {
                     attacker.sendMessage(cantinfectMsg);
                     return;
                 }
+                plugin.getArena().getDatabaseController().getMoneydb().changePlayerMoney(attacker.getName(), 1);
                 String infectedMsg = arena.getDatabaseController().getMessagedb().getMessage(attackedUser.getLanguage(), "infected.nowinfected");
                 arena.makePlayerZombie(attacked, attackedUser);
                 attacked.sendMessage(infectedMsg);

@@ -1,11 +1,13 @@
 package com.gmail.grzegorz2047.infected;
 
 import com.gmail.grzegorz2047.infected.api.util.BungeeUtil;
+import com.gmail.grzegorz2047.infected.kits.StartKits;
 import me.libraryaddict.disguise.DisguiseAPI;
 import me.libraryaddict.disguise.disguisetypes.DisguiseType;
 import me.libraryaddict.disguise.disguisetypes.MobDisguise;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -24,6 +26,7 @@ import java.util.*;
 public class Arena {
     private final Infected plugin;
     private HashMap<String, GameUser> playersData = new HashMap<String, GameUser>();
+    private HashMap<String, Long> delayedKnockback = new HashMap<String, Long>();
     private DatabaseController databaseController;
     private int minPlayers = 3;
     private int maxPlayers = 20;
@@ -34,7 +37,6 @@ public class Arena {
     private Location spawn;
     private YmlFileHandler spawnsFile;
     private boolean changingPlayerEnabled = true;
-
 
     public enum Status {WAITING, STARTING, SEARCHING, INGAME}
 
@@ -85,10 +87,25 @@ public class Arena {
     }
 
     public void reInit() {
+        plugin.getArena().setMakingZombieEnabled(false);
+        plugin.getCounter().cancel();
+        Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+            @Override
+            public void run() {
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    BungeeUtil.changeServer(plugin, p, "lobby1");
+                }
+            }
+        }, 20 * 3);
 
-        Bukkit.unloadWorld(Bukkit.getWorlds().get(1), false);
-        status = Status.WAITING;
-        init();
+        Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+            @Override
+            public void run() {
+                Bukkit.unloadWorld(Bukkit.getWorlds().get(1), false);
+                status = Status.WAITING;
+                init();
+            }
+        }, 20 * 5);
     }
 
     public void preStartArena() {
@@ -270,7 +287,7 @@ public class Arena {
         attackedUser.changePlayerStatus(GameUser.PlayerStatus.ZOMBIE);
         p.removePotionEffect(PotionEffectType.BLINDNESS);
         p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, Integer.MAX_VALUE, 1), true);
-
+        p.getInventory().setHelmet(new ItemStack(Material.PUMPKIN, 1));
         DisguiseAPI.disguiseIgnorePlayers(p, new MobDisguise(DisguiseType.ZOMBIE), tab);
         if (plugin.getArena().count(GameUser.PlayerStatus.ALIVE) == 0) {
             Bukkit.broadcastMessage("Zombie wygraly!");
@@ -285,6 +302,7 @@ public class Arena {
         int chose = r.nextInt(list.size());
         GameUser chosen = list.get(chose);
         tab[0] = chosen.getUsername();
+        StartKits kits = new StartKits();
         for (GameUser gameUser : list) {
             String message = getDatabaseController().
                     getMessagedb().
@@ -298,11 +316,14 @@ public class Arena {
                 gameUser.changePlayerStatus(GameUser.PlayerStatus.ZOMBIE);
                 p.removePotionEffect(PotionEffectType.BLINDNESS);
                 p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, Integer.MAX_VALUE, 1), true);
+                p.getInventory().setHelmet(new ItemStack(Material.PUMPKIN, 1));
                 DisguiseAPI.disguiseIgnorePlayers(p, new MobDisguise(DisguiseType.ZOMBIE), tab);
                 String choosenmsg = getDatabaseController().getMessagedb().getMessage(gameUser.getLanguage(), "infected.playerchoosen");
                 p.sendMessage(choosenmsg);
                 //p.teleport(zombieIngameSpawn);
                 p.getWorld().strikeLightning(p.getLocation());
+            } else {
+                kits.giveAliveKit(p);
             }
             p.playSound(p.getLocation(), Sound.GHAST_SCREAM, r.nextInt(6), 1);
         }
@@ -312,35 +333,32 @@ public class Arena {
 
     public void checkIfAliveWin() {
         if (plugin.getArena().count(GameUser.PlayerStatus.ALIVE) > 0) {
-            Bukkit.broadcastMessage("Ludzie wygrali!");
-            plugin.getArena().setMakingZombieEnabled(false);
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                BungeeUtil.changeServer(plugin, p, "lobby1");
-            }
-            plugin.getCounter().cancel();
-            Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-                @Override
-                public void run() {
-                    plugin.getArena().reInit();
+            for (GameUser gameuser : playersData.values()) {
+                if (gameuser.isAlive()) {
+                    plugin.getArena().getDatabaseController().getMoneydb().changePlayerMoney(gameuser.getUsername(), 20);
                 }
-            }, 20 * 3);
+                Player p = Bukkit.getPlayer(gameuser.getUsername());
+                String aliveWinMsg = databaseController.getMessagedb().getMessage(gameuser.getLanguage(), "infected.alivewin");
+                p.sendMessage(aliveWinMsg);
+            }
+            plugin.getArena().reInit();
         }
     }
 
     public void checkIfZombieWin() {
         if (plugin.getArena().count(GameUser.PlayerStatus.ALIVE) <= 0) {
-            Bukkit.broadcastMessage("Zombie wygraly!");
-            plugin.getArena().setMakingZombieEnabled(false);
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                BungeeUtil.changeServer(plugin, p, "lobby1");
+            for (GameUser gameuser : playersData.values()) {
+                Player p = Bukkit.getPlayer(gameuser.getUsername());
+                String zombieWinMsg = databaseController.getMessagedb().getMessage(gameuser.getLanguage(), "infected.zombiewin");
+                p.sendMessage(zombieWinMsg);
             }
-            plugin.getCounter().cancel();
-            Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-                @Override
-                public void run() {
-                    plugin.getArena().reInit();
-                }
-            }, 20 * 3);
+            plugin.getArena().reInit();
         }
     }
+
+    public HashMap<String, Long> getDelayedKnockback() {
+        return delayedKnockback;
+    }
+
+
 }
