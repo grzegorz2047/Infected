@@ -30,7 +30,15 @@ public class JoinListener implements Listener {
     public void onJoin(PlayerJoinEvent e) {
         e.setJoinMessage("");
         Player p = e.getPlayer();
-        GameUser gameUser = plugin.getArena().getPlayer(p.getName());
+        GameUser gameUser = null;
+        if (plugin.getArena().isWaiting()) {
+            gameUser = plugin.getArena().addPlayer(p, GameUser.PlayerStatus.ALIVE);
+        } else if (plugin.getArena().isStarting()) {
+            gameUser = plugin.getArena().addPlayer(p, GameUser.PlayerStatus.ALIVE);
+        } else if (plugin.getArena().isInGame()) {
+            gameUser = plugin.getArena().addPlayer(p, GameUser.PlayerStatus.SPECTATOR);
+            p.setGameMode(GameMode.SPECTATOR);
+        }
         ScoreboardAPI scoreboardAPI = new ScoreboardAPI(plugin);
         scoreboardAPI.createScoreboard(p, gameUser);
         preparePlayer(p);
@@ -39,6 +47,8 @@ public class JoinListener implements Listener {
         } catch (NullPointerException ex) {
             System.out.print("Brak ustalonego glownego spawnu");
         }
+        System.out.print(plugin.getArena().getStatus().toString() + " Status areny");
+        System.out.print(plugin.getCounter().getStatus().toString() + " " + plugin.getCounter().getTime());
         ArenaStatus.setPlayers(Bukkit.getOnlinePlayers().size());
         if (plugin.getArena().isWaiting()) {
             for (Player players : Bukkit.getOnlinePlayers()) {
@@ -48,20 +58,14 @@ public class JoinListener implements Listener {
                 plugin.getArena().preStartArena();
             }
         }
-
+        scoreboardAPI = new ScoreboardAPI(plugin);
+        scoreboardAPI.refreshTags();
     }
 
     @EventHandler
     public void onLogin(PlayerLoginEvent e) {
         Player p = e.getPlayer();
-        GameUser gameUser = null;
-        if (plugin.getArena().isWaiting()) {
-            gameUser = plugin.getArena().addPlayer(p, GameUser.PlayerStatus.ALIVE);
-        } else if (plugin.getArena().isStarting()) {
-            gameUser = plugin.getArena().addPlayer(p, GameUser.PlayerStatus.ALIVE);
-        } else if (plugin.getArena().isInGame()) {
-            gameUser = plugin.getArena().addPlayer(p, GameUser.PlayerStatus.SPECTATOR);
-        }
+
 
     }
 

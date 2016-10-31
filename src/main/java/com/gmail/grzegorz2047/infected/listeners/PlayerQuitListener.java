@@ -1,8 +1,10 @@
 package com.gmail.grzegorz2047.infected.listeners;
 
+import com.gmail.grzegorz2047.infected.Arena;
 import com.gmail.grzegorz2047.infected.GameUser;
 import com.gmail.grzegorz2047.infected.Infected;
 import com.gmail.grzegorz2047.infected.api.util.ColoringUtil;
+import com.gmail.grzegorz2047.infected.scoreboard.ScoreboardAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -29,27 +31,41 @@ public class PlayerQuitListener implements Listener {
         e.setQuitMessage("");
         GameUser gameUser = plugin.getArena().getPlayer(p.getName());
         if (plugin.getArena().isStarting()) {
+            gameUser.changePlayerStatus(GameUser.PlayerStatus.SPECTATOR);
+            System.out.print("Wychodzi " + p.getName() + " podczas startu areny");
             if (!plugin.getArena().isEnoughToStart()) {
+                System.out.print("Wychodzi " + p.getName() + " podczas startu areny kiedy nie ma enough players");
                 plugin.getCounter().cancel();
+                plugin.getArena().status = Arena.Status.WAITING;
+
                 Bukkit.broadcastMessage(ColoringUtil.colorText("&cNie wystarczajaca liczba graczy"));
             }
-        }
-        if (gameUser.isZombie()) {
-            if (plugin.getArena().count(GameUser.PlayerStatus.ZOMBIE) <= 0) {
-                if (plugin.getArena().count(GameUser.PlayerStatus.ALIVE) >= 2) {
-                    plugin.getArena().removePlayer(p.getName());
-                    plugin.getArena().assignFirstZombie();
-                } else {
-                    Bukkit.broadcastMessage(ColoringUtil.colorText("&6Zbyt malo graczy do przeprowadzenia areny!"));
-                    plugin.getArena().reInit();
+        } else if (plugin.getArena().isInGame()) {
+            System.out.print("Wychodzacy gracz " + gameUser.getPlayerStatus().toString());
+            if (gameUser.isZombie()) {
+                if (plugin.getArena().count(GameUser.PlayerStatus.ZOMBIE) <= 0) {
+                    System.out.print("0 zombie na arenie");
+
+                    if (plugin.getArena().count(GameUser.PlayerStatus.ALIVE) >= 2) {
+                        System.out.print("2 lub wiecej zyjacych");
+
+                        gameUser.changePlayerStatus(GameUser.PlayerStatus.SPECTATOR);
+                        plugin.getArena().assignFirstZombie();
+                    } else {
+                        System.out.print("Mniej niz 2 zyjace osoby");
+                        Bukkit.broadcastMessage(ColoringUtil.colorText("&6Zbyt malo graczy do przeprowadzenia areny!"));
+                        plugin.getArena().reInit();
+                    }
                 }
             }
-        } else {
-            plugin.getArena().removePlayer(p.getName());
-
         }
+        ScoreboardAPI scoreboardAPI = new ScoreboardAPI(plugin);
+
+
+        plugin.getArena().removePlayer(p.getName());
         //jeżeli zombie i rozgrywka i tylko 1 zombie wyznacz nowego zombie
         //jezeli jedna osoba restart areny
         ArenaStatus.setPlayers(Bukkit.getOnlinePlayers().size());
+        scoreboardAPI.refreshTags();
     }
 }

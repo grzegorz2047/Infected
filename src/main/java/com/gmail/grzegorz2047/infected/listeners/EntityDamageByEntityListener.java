@@ -48,6 +48,12 @@ public class EntityDamageByEntityListener implements Listener {
                 String infectedMsg = arena.getDatabaseController().getMessagedb().getMessage(attackedUser.getLanguage(), "infected.nowinfected");
                 arena.makePlayerZombie(attacked, attackedUser);
                 attacked.sendMessage(infectedMsg);
+                plugin.getArena().getDatabaseController().getStatsdb().increaseValueBy(attackerUser.getUsername(), "kills", 1);
+
+            } else if (attackerUser.isAlive() && attackedUser.isZombie()) {
+                e.setDamage(0);
+            } else {
+                e.setCancelled(true);
             }
         } else if (e.getDamager() instanceof Egg) {
             if (e.getEntity() instanceof Player) {
@@ -59,6 +65,8 @@ public class EntityDamageByEntityListener implements Listener {
                     GameUser attackerUser = arena.getPlayer(attacker.getName());
                     if (attackedUser.isZombie()) {
                         attacked.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 10, 1));
+                    } else {
+                        e.setCancelled(true);
                     }
                 }
             }
@@ -73,8 +81,10 @@ public class EntityDamageByEntityListener implements Listener {
                 p.teleport(plugin.getArena().getAliveIngameSpawn());
 
             }
+        } else if (!e.getCause().equals(EntityDamageEvent.DamageCause.ENTITY_ATTACK)) {
+            e.setCancelled(true);
         }
-        e.setCancelled(true);
+
 
     }
 

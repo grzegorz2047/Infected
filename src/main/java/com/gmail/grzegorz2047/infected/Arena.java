@@ -2,6 +2,7 @@ package com.gmail.grzegorz2047.infected;
 
 import com.gmail.grzegorz2047.infected.api.util.BungeeUtil;
 import com.gmail.grzegorz2047.infected.kits.StartKits;
+import com.gmail.grzegorz2047.infected.scoreboard.ScoreboardAPI;
 import me.libraryaddict.disguise.DisguiseAPI;
 import me.libraryaddict.disguise.disguisetypes.DisguiseType;
 import me.libraryaddict.disguise.disguisetypes.MobDisguise;
@@ -121,15 +122,20 @@ public class Arena {
         for (Player pl : Bukkit.getOnlinePlayers()) {
             pl.teleport(aliveIngameSpawn);
         }
+        ScoreboardAPI scoreboard = new ScoreboardAPI(plugin);
+        scoreboard.refreshTags();
         Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
             @Override
             public void run() {
                 //msg Nastaly zlowrogie ciemnosci blindness
+                ScoreboardAPI scoreboard = new ScoreboardAPI(plugin);
+
                 for (GameUser gameUser : playersData.values()) {
                     System.out.print("Poczatkowo alive to " + gameUser.getUsername());
                     Player p = Bukkit.getPlayer(gameUser.getUsername());
                     p.
                             addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 1));
+                     scoreboard.createIngameScoreboard(p,gameUser);
                 }
             }
         }, 20l * 5);
@@ -168,7 +174,7 @@ public class Arena {
     }
 
     public boolean isEnoughToStart() {
-        return getPlayersData().size() >= getMinPlayers();
+        return count(GameUser.PlayerStatus.ALIVE) >= getMinPlayers();
     }
 
     public int count(GameUser.PlayerStatus status) {
@@ -288,12 +294,15 @@ public class Arena {
         tab[0] = p.getName();
         attackedUser.changePlayerStatus(GameUser.PlayerStatus.ZOMBIE);
         p.removePotionEffect(PotionEffectType.BLINDNESS);
+        p.getInventory().remove(Material.STICK);
         p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, Integer.MAX_VALUE, 1), true);
         p.getInventory().setHelmet(new ItemStack(Material.PUMPKIN, 1));
         DisguiseAPI.disguiseIgnorePlayers(p, new MobDisguise(DisguiseType.ZOMBIE), tab);
         if (plugin.getArena().count(GameUser.PlayerStatus.ALIVE) == 0) {
             Bukkit.broadcastMessage("Zombie wygraly!");
         }
+        ScoreboardAPI scoreboardAPI = new ScoreboardAPI(plugin);
+        scoreboardAPI.refreshTags();
     }
 
     public void assignFirstZombie() {
@@ -329,6 +338,8 @@ public class Arena {
             }
             p.playSound(p.getLocation(), Sound.GHAST_SCREAM, r.nextInt(6), 1);
         }
+        ScoreboardAPI scoreboardAPI = new ScoreboardAPI(plugin);
+        scoreboardAPI.refreshTags();
         //Bukkit.broadcastMessage("Gracz " + chosen.getUsername() + " zostal zaatakowany przez tajemnicza istote i zakażony przez co stał się zombie ")
 
     }
@@ -338,6 +349,7 @@ public class Arena {
             for (GameUser gameuser : playersData.values()) {
                 if (gameuser.isAlive()) {
                     plugin.getArena().getDatabaseController().getMoneydb().changePlayerMoney(gameuser.getUsername(), 20);
+                    plugin.getArena().getDatabaseController().getStatsdb().increaseValueBy(gameuser.getUsername(), "wins", 1);
                 }
                 Player p = Bukkit.getPlayer(gameuser.getUsername());
                 String aliveWinMsg = databaseController.getMessagedb().getMessage(gameuser.getLanguage(), "infected.alivewin");

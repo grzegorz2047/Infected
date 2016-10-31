@@ -33,13 +33,20 @@ public class ScoreboardAPI {
         //addEntry(scoreboard, objective, team3Label, "0", 6);
         //addEntry(scoreboard, objective, team4Label, "0", 5);
         addEntry(scoreboard, objective, "§   ", "", 15);
-        //addEntry(scoreboard, objective, plugin.getMessageManager().getMessage(user.getLanguage(), "thewalls.scoreboard.kills"), String.valueOf(0), 3);
-        //addEntry(scoreboard, objective, plugin.getMessageManager().getMessage(user.getLanguage(), "thewalls.scoreboard.money"), String.valueOf(user.getMoney()), 2);
-        //addEntry(scoreboard, objective, "§bTEAM2§6", "0", 3);
+        addEntry(scoreboard, objective, "Zywi", String.valueOf(plugin.getArena().count(GameUser.PlayerStatus.ALIVE)), 14);
+        addEntry(scoreboard, objective, "§  ", "", 13);
+        addEntry(scoreboard, objective, "Nieumarli", String.valueOf(plugin.getArena().count(GameUser.PlayerStatus.ZOMBIE)), 12);
+        addEntry(scoreboard, objective, "§ ", "", 11);
+        addEntry(scoreboard, objective, plugin.getArena().getDatabaseController().getMessagedb().getMessage(user.getLanguage(), "infected.scoreboard.kills"), String.valueOf(0), 10);
+        addEntry(scoreboard, objective, "§    ", "", 9);
+        addEntry(scoreboard, objective, plugin.getArena().getDatabaseController().getMessagedb().getMessage(user.getLanguage(), "infected.scoreboard.money"), String.valueOf(user.getMoney()), 8);
+        addEntry(scoreboard, objective, "§     ", "", 7);
+        addEntry(scoreboard, objective, plugin.getArena().getDatabaseController().getMessagedb().getMessage(user.getLanguage(), "infected.scoreboard.wins"), String.valueOf(user.getStatsUser().getWins()), 6);
+        //addEntry(scoreboard, objective, "§bTEAM2§6", "0",. 3);
         //addEntry(scoreboard, objective, "§cTEAM3§6", "0", 2);
         //addEntry(scoreboard, objective, "§eTEAM4§6", "0", 2);
         // addEntry(scoreboard, objective, "§§", "", 9);
-        addEntry(scoreboard, objective, "§    ", "", 14);
+
         /*Team t1 = scoreboard.registerNewTeam("team1");
         t1.setPrefix("§a");
         Team t2 = scoreboard.registerNewTeam("team2");
@@ -50,7 +57,13 @@ public class ScoreboardAPI {
         t4.setPrefix("§e");
         */
     }
-
+    public void createIngameScoreboard(Player p, GameUser user) {
+        Scoreboard scoreboard = p.getScoreboard();
+        Objective objective = p.getScoreboard().getObjective("sidebar");
+        removeEntry(scoreboard, plugin.getArena().getDatabaseController().getMessagedb().getMessage(user.getLanguage(), "infected.scoreboard.kills"));
+        removeEntry(scoreboard, plugin.getArena().getDatabaseController().getMessagedb().getMessage(user.getLanguage(), "infected.scoreboard.money"));
+        removeEntry(scoreboard, plugin.getArena().getDatabaseController().getMessagedb().getMessage(user.getLanguage(), "infected.scoreboard.wins"));
+    }
     public void refreshTags() {/*
         Scoreboard sc = p.getScoreboard();
         Team t1 = sc.getTeam("team1");
@@ -64,8 +77,8 @@ public class ScoreboardAPI {
         for (GameUser user : plugin.getArena().getPlayersData().values()) {
             Player p = Bukkit.getPlayer(user.getUsername());
             Scoreboard sc = p.getScoreboard();
-            updateEntry(sc, "alive", plugin.getArena().count(GameUser.PlayerStatus.ALIVE));
-            updateEntry(sc, "zombie", plugin.getArena().count(GameUser.PlayerStatus.ZOMBIE));
+            updateEntry(sc, "Zywi", plugin.getArena().count(GameUser.PlayerStatus.ALIVE));
+            updateEntry(sc, "Nieumarli", plugin.getArena().count(GameUser.PlayerStatus.ZOMBIE));
         }
     }
 
@@ -131,14 +144,15 @@ public class ScoreboardAPI {
     }
 
     public void updateDisplayName(int time, Player p) {
+        int sum = (plugin.getArena().count(GameUser.PlayerStatus.ALIVE) + plugin.getArena().count(GameUser.PlayerStatus.ZOMBIE));
         Scoreboard scoreboard = p.getScoreboard();
         scoreboard.getObjective(
                 DisplaySlot.SIDEBAR).
                 setDisplayName(
                         "§a" + formatIntoHHMMSS(time) +
                                 " §6Infected #" +
-                                (Bukkit.getPort() % 200) +
-                                " §a" + plugin.getArena().countAll() +
+                                (Bukkit.getPort() % 100) +
+                                " §a" + sum +
                                 "/" + plugin.getArena().getMaxPlayers());
     }
 
