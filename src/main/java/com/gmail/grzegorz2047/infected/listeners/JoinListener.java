@@ -30,6 +30,9 @@ public class JoinListener implements Listener {
     public void onJoin(PlayerJoinEvent e) {
         e.setJoinMessage("");
         Player p = e.getPlayer();
+        GameUser gameUser = plugin.getArena().getPlayer(p.getName());
+        ScoreboardAPI scoreboardAPI = new ScoreboardAPI(plugin);
+        scoreboardAPI.createScoreboard(p, gameUser);
         preparePlayer(p);
         try {
             p.teleport(plugin.getArena().getSpawn());
@@ -38,7 +41,6 @@ public class JoinListener implements Listener {
         }
         ArenaStatus.setPlayers(Bukkit.getOnlinePlayers().size());
         if (plugin.getArena().isWaiting()) {
-            ScoreboardAPI scoreboardAPI = new ScoreboardAPI(plugin);
             for (Player players : Bukkit.getOnlinePlayers()) {
                 scoreboardAPI.updateDisplayName(0, players);
             }
@@ -60,8 +62,6 @@ public class JoinListener implements Listener {
         } else if (plugin.getArena().isInGame()) {
             gameUser = plugin.getArena().addPlayer(p, GameUser.PlayerStatus.SPECTATOR);
         }
-        ScoreboardAPI scoreboardAPI = new ScoreboardAPI(plugin);
-        scoreboardAPI.createScoreboard(p, gameUser);
 
     }
 

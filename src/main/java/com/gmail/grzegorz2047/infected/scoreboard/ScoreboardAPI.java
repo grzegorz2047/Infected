@@ -13,17 +13,9 @@ import pl.grzegorz2047.databaseapi.SQLUser;
 public class ScoreboardAPI {
 
     private final Infected plugin;
-    private Scoreboard scoreboard;
 
     public ScoreboardAPI(Infected plugin) {
         this.plugin = plugin;
-        scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-        if (scoreboard.getObjective("sidebar") == null) {
-            Objective objective = scoreboard.registerNewObjective("sidebar", "dummy");
-            objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-            objective.setDisplayName("§6§l Punkty kontrolne");
-        }
-
 
     }
 
@@ -31,7 +23,7 @@ public class ScoreboardAPI {
         p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
         Objective objective = p.getScoreboard().registerNewObjective("sidebar", "dummy");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-
+        Scoreboard scoreboard = p.getScoreboard();
 //        Objective tablistobj = scoreboard.registerNewObjective("tablist", "dummy");
         //      tablistobj.setDisplaySlot(DisplaySlot.PLAYER_LIST);
         //addTabListEntry(scoreboard, p.getName(), " §7"); //color tablist?
@@ -57,7 +49,6 @@ public class ScoreboardAPI {
         Team t4 = scoreboard.registerNewTeam("team4");
         t4.setPrefix("§e");
         */
-        p.setScoreboard(scoreboard);
     }
 
     public void refreshTags() {/*
@@ -162,7 +153,4 @@ public class ScoreboardAPI {
 
     }
 
-    public Scoreboard getScoreboard() {
-        return scoreboard;
-    }
 }

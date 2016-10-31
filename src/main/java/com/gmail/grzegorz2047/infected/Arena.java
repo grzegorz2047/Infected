@@ -28,7 +28,7 @@ public class Arena {
     private HashMap<String, GameUser> playersData = new HashMap<String, GameUser>();
     private HashMap<String, Long> delayedKnockback = new HashMap<String, Long>();
     private DatabaseController databaseController;
-    private int minPlayers = 3;
+    private int minPlayers = 2;
     private int maxPlayers = 20;
     private int startTime = 40;
     private int ingameTime = 60 * 7;
@@ -126,8 +126,10 @@ public class Arena {
             public void run() {
                 //msg Nastaly zlowrogie ciemnosci blindness
                 for (GameUser gameUser : playersData.values()) {
+                    System.out.print("Poczatkowo alive to " + gameUser.getUsername());
                     Player p = Bukkit.getPlayer(gameUser.getUsername());
-                    p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 1));
+                    p.
+                            addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 1));
                 }
             }
         }, 20l * 5);
