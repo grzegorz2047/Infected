@@ -78,10 +78,20 @@ public class EntityDamageByEntityListener implements Listener {
         if (e.getCause().equals(EntityDamageEvent.DamageCause.VOID)) {
             if (e.getEntity() instanceof Player) {
                 Player p = (Player) e.getEntity();
-                p.teleport(plugin.getArena().getAliveIngameSpawn());
+                GameUser gameUser = plugin.getArena().getPlayer(e.getEntity().getName());
+                if(gameUser.isAlive()){
 
+                    p.teleport(plugin.getArena().getAliveIngameSpawn());
+
+                }else {
+
+                    p.teleport(plugin.getArena().getZombieIngameSpawn());
+
+                }
             }
         } else if (!e.getCause().equals(EntityDamageEvent.DamageCause.ENTITY_ATTACK)) {
+            e.setCancelled(true);
+        } else if (!e.getCause().equals(EntityDamageEvent.DamageCause.PROJECTILE)) {
             e.setCancelled(true);
         }
 

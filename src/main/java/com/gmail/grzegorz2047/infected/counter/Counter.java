@@ -42,9 +42,11 @@ public class Counter implements Runnable {
 
     public void setStatus(CounterStatus status) {
         this.status = status;
+        System.out.println("STATUS " + status.toString());
     }
 
     public void cancel() {
+        System.out.println("CANCEL");
         this.setStatus(CounterStatus.STOPPED);
         this.running = false;
     }

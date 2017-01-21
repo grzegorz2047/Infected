@@ -42,6 +42,7 @@ public class ScoreboardAPI {
         addEntry(scoreboard, objective, plugin.getArena().getDatabaseController().getMessagedb().getMessage(user.getLanguage(), "infected.scoreboard.money"), String.valueOf(user.getMoney()), 8);
         addEntry(scoreboard, objective, "§     ", "", 7);
         addEntry(scoreboard, objective, plugin.getArena().getDatabaseController().getMessagedb().getMessage(user.getLanguage(), "infected.scoreboard.wins"), String.valueOf(user.getStatsUser().getWins()), 6);
+        addEntry(scoreboard, objective, "§      ", "", 5);
         //addEntry(scoreboard, objective, "§bTEAM2§6", "0",. 3);
         //addEntry(scoreboard, objective, "§cTEAM3§6", "0", 2);
         //addEntry(scoreboard, objective, "§eTEAM4§6", "0", 2);

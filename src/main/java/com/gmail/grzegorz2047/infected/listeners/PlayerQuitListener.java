@@ -43,14 +43,16 @@ public class PlayerQuitListener implements Listener {
         } else if (plugin.getArena().isInGame()) {
             System.out.print("Wychodzacy gracz " + gameUser.getPlayerStatus().toString());
             if (gameUser.isZombie()) {
-                if (plugin.getArena().count(GameUser.PlayerStatus.ZOMBIE) <= 0) {
-                    System.out.print("0 zombie na arenie");
+                if (plugin.getArena().count(GameUser.PlayerStatus.ZOMBIE) <= 1) {
+                    System.out.print("tylko 1 zombie na arenie");
 
                     if (plugin.getArena().count(GameUser.PlayerStatus.ALIVE) >= 2) {
                         System.out.print("2 lub wiecej zyjacych");
 
                         gameUser.changePlayerStatus(GameUser.PlayerStatus.SPECTATOR);
-                        plugin.getArena().assignFirstZombie();
+                        GameUser choosen = plugin.getArena().getRandomGameUser();
+                        Player choosenPlayer = Bukkit.getPlayer(choosen.getUsername());
+                        plugin.getArena().makePlayerZombie(choosenPlayer, choosen);
                     } else {
                         System.out.print("Mniej niz 2 zyjace osoby");
                         Bukkit.broadcastMessage(ColoringUtil.colorText("&6Zbyt malo graczy do przeprowadzenia areny!"));

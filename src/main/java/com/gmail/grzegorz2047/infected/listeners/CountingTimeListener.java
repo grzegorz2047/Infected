@@ -24,6 +24,7 @@ public class CountingTimeListener implements Listener {
     @EventHandler
     public void onCounting(CountingEvent e) {
         int time = plugin.getCounter().getTime();
+        System.out.print("Odliczam kiedy " + plugin.getArena().status.toString());
         if (plugin.getArena().isStarting()) {
             ScoreboardAPI scoreboardAPI = new ScoreboardAPI(plugin);
             for (Player p : Bukkit.getOnlinePlayers()) {
@@ -37,6 +38,7 @@ public class CountingTimeListener implements Listener {
         }
         if (plugin.getArena().isInGame()) {
             ScoreboardAPI scoreboardAPI = new ScoreboardAPI(plugin);
+            System.out.print("Czas podczas gry" + e.getCounter().getTime());
             for (Player p : Bukkit.getOnlinePlayers()) {
                 scoreboardAPI.updateDisplayName(e.getCounter().getTime(), p);
             }

@@ -22,13 +22,27 @@ public class PlaceBreakListener implements Listener {
 
     @EventHandler
     public void onBreak(BlockBreakEvent e) {
-        Player p = e.getPlayer();
-        e.setCancelled(true);
+        if (!plugin.getArena().isInGame()) {
+            e.setCancelled(true);
+        }
+        if (plugin.getArena().getAliveIngameSpawn().distance(e.getBlock().getLocation()) < 6) {
+            e.setCancelled(true);
+        }
+        if(e.getBlock().getLocation().getBlockY()< 61){
+            e.setCancelled(true);
+        }
     }
 
     public void onPlace(BlockPlaceEvent e) {
-        Player p = e.getPlayer();
-        e.setCancelled(true);
+        if (!plugin.getArena().isInGame()) {
+            e.setCancelled(true);
+        }
+        if (plugin.getArena().getAliveIngameSpawn().distance(e.getBlockPlaced().getLocation()) < 6) {
+            e.setCancelled(true);
+        }
+        if(e.getBlock().getLocation().getBlockY()< 61){
+            e.setCancelled(true);
+        }
     }
 
     public void onEmpty(PlayerBucketEmptyEvent e) {

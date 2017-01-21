@@ -1,0 +1,9 @@
+mysqlservers:
+  host: sv2.CraftGames.pl
+  port: 3306
+  user: PlayersUser
+  password: 3rYvDnBKsy5rbcdG
+  database: NowaEdycja2016
+  table: servers_list
+minigame: 'TW'
+hub: true

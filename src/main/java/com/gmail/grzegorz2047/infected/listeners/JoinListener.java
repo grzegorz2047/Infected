@@ -1,5 +1,6 @@
 package com.gmail.grzegorz2047.infected.listeners;
 
+import com.gmail.grzegorz2047.infected.Arena;
 import com.gmail.grzegorz2047.infected.GameUser;
 import com.gmail.grzegorz2047.infected.Infected;
 import com.gmail.grzegorz2047.infected.counter.Counter;
@@ -51,6 +52,7 @@ public class JoinListener implements Listener {
         System.out.print(plugin.getCounter().getStatus().toString() + " " + plugin.getCounter().getTime());
         ArenaStatus.setPlayers(Bukkit.getOnlinePlayers().size());
         if (plugin.getArena().isWaiting()) {
+            p.sendMessage(plugin.getArena().getDatabaseController().getMessagedb().getMessage(gameUser.getLanguage(),"infected.welcomemsg"));
             for (Player players : Bukkit.getOnlinePlayers()) {
                 scoreboardAPI.updateDisplayName(0, players);
             }
@@ -65,7 +67,9 @@ public class JoinListener implements Listener {
     @EventHandler
     public void onLogin(PlayerLoginEvent e) {
         Player p = e.getPlayer();
-
+        if(plugin.getArena().status.equals(Arena.Status.RESTARTING)){
+            e.disallow(PlayerLoginEvent.Result.KICK_OTHER,"Restart areny!");
+        }
 
     }
 

@@ -57,9 +57,6 @@ public class BlockVariousInteractionListener implements Listener {
     public void onInv(InventoryMoveItemEvent e) {
         e.setCancelled(true);
     }
-    @EventHandler
-    public void onInv(InventoryClickEvent e) {
-        e.setCancelled(true);
-    }
+
 
 }

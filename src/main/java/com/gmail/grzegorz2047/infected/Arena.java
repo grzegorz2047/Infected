@@ -29,17 +29,25 @@ public class Arena {
     private HashMap<String, GameUser> playersData = new HashMap<String, GameUser>();
     private HashMap<String, Long> delayedKnockback = new HashMap<String, Long>();
     private DatabaseController databaseController;
-    private int minPlayers = 2;
+    private int minPlayers = 6;
     private int maxPlayers = 20;
     private int startTime = 40;
-    private int ingameTime = 60 * 7;
+    private int ingameTime = 60 * 10;
     private Location zombieIngameSpawn;
     private Location aliveIngameSpawn;
     private Location spawn;
     private YmlFileHandler spawnsFile;
     private boolean changingPlayerEnabled = true;
 
-    public enum Status {WAITING, STARTING, SEARCHING, INGAME}
+    public GameUser getRandomGameUser() {
+        Random r = new Random();
+
+        List<GameUser> list = new ArrayList<>(this.getPlayersData().values());
+        int chose = r.nextInt(list.size());
+        return list.get(chose);
+    }
+
+    public enum Status {WAITING, STARTING, SEARCHING, RESTARTING, INGAME}
 
     public Status status = Status.WAITING;
 
@@ -90,6 +98,7 @@ public class Arena {
     public void reInit() {
         plugin.getArena().setMakingZombieEnabled(false);
         plugin.getCounter().cancel();
+        plugin.getArena().status = Status.RESTARTING;
         Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
             @Override
             public void run() {
@@ -102,7 +111,11 @@ public class Arena {
         Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
             @Override
             public void run() {
-                Bukkit.unloadWorld(Bukkit.getWorlds().get(1), false);
+                for (World w : Bukkit.getWorlds()) {
+                    if (!Bukkit.getWorlds().get(0).equals(w)) {
+                        Bukkit.unloadWorld(w, false);
+                    }
+                }
                 status = Status.WAITING;
                 init();
             }
@@ -118,35 +131,23 @@ public class Arena {
         status = Status.INGAME;
         ArenaStatus.setStatus(ArenaStatus.Status.INGAME);
 
-
-        for (Player pl : Bukkit.getOnlinePlayers()) {
-            pl.teleport(aliveIngameSpawn);
-        }
         ScoreboardAPI scoreboard = new ScoreboardAPI(plugin);
         scoreboard.refreshTags();
-        Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-            @Override
-            public void run() {
-                //msg Nastaly zlowrogie ciemnosci blindness
-                ScoreboardAPI scoreboard = new ScoreboardAPI(plugin);
 
-                for (GameUser gameUser : playersData.values()) {
-                    System.out.print("Poczatkowo alive to " + gameUser.getUsername());
-                    Player p = Bukkit.getPlayer(gameUser.getUsername());
-                    p.
-                            addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 1));
-                     scoreboard.createIngameScoreboard(p,gameUser);
-                }
+        for (GameUser gameUser : playersData.values()) {
+            System.out.print("Poczatkowo alive to " + gameUser.getUsername());
+            Player p = Bukkit.getPlayer(gameUser.getUsername());
+            scoreboard.createIngameScoreboard(p, gameUser);
+        }
+        plugin.getArena().assignFirstZombie();
+        plugin.getCounter().start(ingameTime);
+        System.out.print("Wystartuj " + ingameTime);
+        for (Player pl1 : Bukkit.getOnlinePlayers()) {
+            for (Player pl2 : Bukkit.getOnlinePlayers()) {
+                pl1.hidePlayer(pl2);
+                pl1.showPlayer(pl2);
             }
-        }, 20l * 5);
-        Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-            @Override
-            public void run() {
-                plugin.getArena().assignFirstZombie();
-                plugin.getCounter().start(ingameTime);
-
-            }
-        }, 20l * 10);
+        }
     }
 
     public HashMap<String, GameUser> getPlayersData() {
@@ -293,16 +294,15 @@ public class Arena {
         String[] tab = new String[1];
         tab[0] = p.getName();
         attackedUser.changePlayerStatus(GameUser.PlayerStatus.ZOMBIE);
-        p.removePotionEffect(PotionEffectType.BLINDNESS);
         p.getInventory().remove(Material.STICK);
-        p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, Integer.MAX_VALUE, 1), true);
-        p.getInventory().setHelmet(new ItemStack(Material.PUMPKIN, 1));
+        p.getInventory().clear();
+        p.teleport(zombieIngameSpawn);
+        p.getWorld().strikeLightning(p.getLocation());
+        StartKits.giveZombieKit(p);
         DisguiseAPI.disguiseIgnorePlayers(p, new MobDisguise(DisguiseType.ZOMBIE), tab);
-        if (plugin.getArena().count(GameUser.PlayerStatus.ALIVE) == 0) {
-            Bukkit.broadcastMessage("Zombie wygraly!");
-        }
         ScoreboardAPI scoreboardAPI = new ScoreboardAPI(plugin);
         scoreboardAPI.refreshTags();
+        checkIfZombieWin();
     }
 
     public void assignFirstZombie() {
@@ -313,7 +313,6 @@ public class Arena {
         int chose = r.nextInt(list.size());
         GameUser chosen = list.get(chose);
         tab[0] = chosen.getUsername();
-        StartKits kits = new StartKits();
         for (GameUser gameUser : list) {
             String message = getDatabaseController().
                     getMessagedb().
@@ -325,16 +324,15 @@ public class Arena {
             p.sendMessage(message);
             if (gameUser.equals(chosen)) {
                 gameUser.changePlayerStatus(GameUser.PlayerStatus.ZOMBIE);
-                p.removePotionEffect(PotionEffectType.BLINDNESS);
-                p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, Integer.MAX_VALUE, 1), true);
-                p.getInventory().setHelmet(new ItemStack(Material.PUMPKIN, 1));
                 DisguiseAPI.disguiseIgnorePlayers(p, new MobDisguise(DisguiseType.ZOMBIE), tab);
                 String choosenmsg = getDatabaseController().getMessagedb().getMessage(gameUser.getLanguage(), "infected.playerchoosen");
                 p.sendMessage(choosenmsg);
-                //p.teleport(zombieIngameSpawn);
+                p.teleport(zombieIngameSpawn);
                 p.getWorld().strikeLightning(p.getLocation());
+                StartKits.giveZombieKit(p);
             } else {
-                kits.giveAliveKit(p);
+                StartKits.giveAliveKit(p);
+                p.teleport(aliveIngameSpawn);
             }
             p.playSound(p.getLocation(), Sound.GHAST_SCREAM, r.nextInt(6), 1);
         }
